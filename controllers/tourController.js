@@ -1,29 +1,26 @@
 const express = require('express');
 const fs = require('fs');
 const Tour = require('../models/tourModel');
+const APIFeatures = require('../utils/apiFeatures');
+
+const aliasTopTours = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficult';
+  next();
+};
 
 // ROUTE HANDLERS
 const getAllTours = async (req, res) => {
   try {
-    // Filtering
-    const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    excludedFields.forEach((el) => delete queryObj[el]);
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
 
-    console.log(req.query, queryObj);
+    const tours = await features.query;
 
-    // Advanced filtering for mongoDb filtering
-    let queryString = JSON.stringify(queryObj);
-    console.log(queryString);
-
-    queryString = queryString.replace(/\b(gte|gt|lt|lte)\b/g, (match) => {
-      return `$${match}`;
-    });
-
-    console.log(JSON.parse(queryString));
-    const query = Tour.find(JSON.parse(queryString));
-
-    const tours = await query;
     res.status(200).json({
       status: 'success',
       results: tours.length,
@@ -34,7 +31,7 @@ const getAllTours = async (req, res) => {
   } catch (err) {
     res.status(400).json({
       status: 'error',
-      message: err.message,
+      message: err,
     });
   }
 };
@@ -112,4 +109,5 @@ module.exports = {
   createTour,
   updateTour,
   deleteTour,
+  aliasTopTours,
 };
