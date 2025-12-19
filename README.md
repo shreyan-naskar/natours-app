@@ -22,6 +22,13 @@
 6. Authorization
 7. Security
 
+## API Features
+
+1. Filtering
+2. Field limiting
+3. Sorting
+4. Pagination
+
 ## Run in your local environment
 
 ```
