@@ -4,6 +4,7 @@ const fs = require('fs');
 
 const tourRouter = require('./routers/tourRoutes');
 const userRouter = require('./routers/userRoutes');
+const errorHandler = require('./middlewares/errorHandler');
 const app = express();
 
 // GLOBAL MIDDLEWARES
@@ -19,5 +20,13 @@ app.use('/api/v1/tours', tourRouter);
 
 // Users
 app.use('/api/v1/users', userRouter);
+
+app.all('*', (req, res, next) => {
+  res.status(404).json({
+    status: 'fail',
+    message: `Can't find ${req.originalUrl} on this server!`,
+  });
+});
+app.use(errorHandler);
 
 module.exports = app;

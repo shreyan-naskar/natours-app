@@ -90,18 +90,18 @@ tourSchema.virtual('durationWeeks').get(function () {
 });
 
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()
-tourSchema.pre('save', function (next) {
+tourSchema.pre('save', function () {
   this.slug = slugify(this.name, { lower: true });
-  next();
+  // next();
 });
 
 // QUERY MIDDLEWARE
 // tourSchema.pre('find', function(next) {
-tourSchema.pre(/^find/, function (next) {
+tourSchema.pre(/^find/, function () {
   this.find({ secretTour: { $ne: true } });
 
   this.start = Date.now();
-  next();
+  // next();
 });
 
 tourSchema.post(/^find/, function (docs, next) {
@@ -110,11 +110,11 @@ tourSchema.post(/^find/, function (docs, next) {
 });
 
 // AGGREGATION MIDDLEWARE
-tourSchema.pre('aggregate', function (next) {
+tourSchema.pre('aggregate', function () {
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
 
   console.log(this.pipeline());
-  next();
+  // next();
 });
 
 module.exports = mongoose.model('Tour', tourSchema);
