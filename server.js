@@ -1,12 +1,13 @@
 const dotenv = require('dotenv').config();
-const mongoose = require('mongoose');
 
+// handle uncaughtExceptions
 process.on('uncaughtException', (err) => {
   console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');
   console.log(err.name, err.message);
   process.exit(1);
 });
 
+// dev code starts
 const app = require('./app');
 const connectDb = require('./config/dbConnection');
 
@@ -18,6 +19,7 @@ const server = app.listen(port, () => {
   console.log(`Server running on ${port}`);
 });
 
+// handle unhandledRejection exceptions
 process.on('unhandledRejection', (err) => {
   console.log('UNHANDLED REJECTION! 💥 Shutting down...');
   console.log(err.name, err.message);
