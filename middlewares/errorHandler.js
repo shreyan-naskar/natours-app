@@ -1,118 +1,68 @@
-// const { constants } = require('../constants');
-
-// // custom error handlers
-// const errorHandler = (err, req, res, next) => {
-//   const statusCode = res.statusCode ? res.statusCode : 500;
-//   switch (statusCode) {
-//     case constants.VALIDATION_ERROR:
-//       res.json({
-//         title: 'Validation Failed',
-//         message: err.message,
-//         stackTrace: err.stack,
-//       });
-//       break;
-
-//     case constants.NOT_FOUND:
-//       res.json({
-//         title: 'Not Found',
-//         message: err.message,
-//         stackTrace: err.stack,
-//       });
-//       break;
-
-//     case constants.UNAUTHORIZED:
-//       res.json({
-//         title: 'Unauthorized',
-//         message: err.message,
-//         stackTrace: err.stack,
-//       });
-//       break;
-
-//     case constants.FORBIDDEN:
-//       res.json({
-//         title: 'Forbidden',
-//         message: err.message,
-//         stackTrace: err.stack,
-//       });
-//       break;
-
-//     case constants.SERVER_ERROR:
-//       res.json({
-//         title: 'Server Error',
-//         message: err.message,
-//         stackTrace: err.stack,
-//       });
-//       break;
-
-//     default:
-//       // console.log('No Error, all good', statusCode, err.stack);
-//       res.json({
-//         title: 'Unknown Error',
-//         message: err.message,
-//         stackTrace: err.stack,
-//       });
-//       break;
-//   }
-// };
-
-// module.exports = errorHandler;
-
 const { constants } = require('../constants');
 
 // custom error handlers
 const errorHandler = (err, req, res, next) => {
   const statusCode = res.statusCode ? res.statusCode : 500;
-  let title, message, stackTrace;
+  let title;
+  let status = 'fail';
+  let message = err.message;
+  const stackTrace = err.stack;
 
-  switch (statusCode) {
-    case constants.VALIDATION_ERROR:
-      title = 'Validation Failed';
-      message = err.message;
-      stackTrace = err.stack;
-      break;
+  // mongoose errors
+  if (err.name === 'CastError') {
+    title = err.name;
+    message = `Invalid ${err.path}: ${err.value}`;
+  } else if (err.code === 11000) {
+    title = 'DuplicateFileds';
+    const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+    // console.log(value);
+    message = `Duplicate field value: ${value}. Please use another value!`;
+  } else if (err.name === 'ValidationError') {
+    title = err.name;
+    const errors = Object.values(err.errors).map((el) => el.message);
+    message = `Invalid input data. ${errors.join('. ')}`;
+  } else {
+    // error thrown from code
+    switch (statusCode) {
+      case constants.VALIDATION_ERROR:
+        title = 'Validation Failed';
+        break;
 
-    case constants.NOT_FOUND:
-      title = 'Not Found';
-      message = err.message;
-      stackTrace = err.stack;
-      break;
+      case constants.NOT_FOUND:
+        title = 'Not Found';
+        break;
 
-    case constants.UNAUTHORIZED:
-      title = 'Unauthorized';
-      message = err.message;
-      stackTrace = err.stack;
-      break;
+      case constants.UNAUTHORIZED:
+        title = 'Unauthorized';
+        break;
 
-    case constants.FORBIDDEN:
-      title = 'Forbidden';
-      message = err.message;
-      stackTrace = err.stack;
-      break;
+      case constants.FORBIDDEN:
+        title = 'Forbidden';
+        break;
 
-    case constants.SERVER_ERROR:
-      title = 'Server Error';
-      message = err.message;
-      stackTrace = err.stack;
-      break;
-
-    default:
-      title = 'Unknown Error';
-      message = err.message;
-      stackTrace = err.stack;
-      break;
+      case constants.SERVER_ERROR:
+        title = 'Server Error';
+        break;
+      // everything else
+      default:
+        title = 'Unknown Error';
+        break;
+    }
   }
   if (process.env.NODE_ENV === 'development') {
     res.json({
+      status,
       title,
       message,
       stackTrace,
+      // err,
     });
   } else if (process.env.NODE_ENV === 'production') {
     console.log(
       `Title: ${title}\nMessage: ${message}\nstackTrace: ${stackTrace}`,
     );
     res.status(500).json({
-      status: 'error',
+      status,
       message: 'Something went very wrong!',
     });
   }
