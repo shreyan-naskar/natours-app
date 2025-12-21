@@ -42,3 +42,15 @@ npm install
 npm run dev
 
 ```
+
+## .env contents
+
+```
+PORT=<port-number>
+NODE_ENV=development
+// DB_PASWORD to be replaced at runtime
+DB_PASSWORD=<database-user-password>
+// <PASSWORD> will be replaced by DB_PASSWORD at runtime
+DB=mongodb+srv://database-user-name<>:<PASSWORD>@<project-name>.rxg4pjs.mongodb.net/<cluster-name>?appName=<app-name>
+
+```
