@@ -29,6 +29,7 @@
     "dotenv": "^17.2.3",
     "express": "^4.22.1",
     "express-async-handler": "^1.2.0",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.0.2",
     "morgan": "^1.10.1",
     "ndb": "^0.2.4",

@@ -2,7 +2,8 @@ const { constants } = require('../constants');
 
 // custom error handlers
 const errorHandler = (err, req, res, next) => {
-  const statusCode = res.statusCode ? res.statusCode : 500;
+  const statusCode =
+    res.statusCode * 1 > 400 && res.statusCode * 1 < 500 ? res.statusCode : 500;
   let title;
   let status = 'fail';
   let message = err.message;
@@ -50,6 +51,7 @@ const errorHandler = (err, req, res, next) => {
     }
   }
   if (process.env.NODE_ENV === 'development') {
+    res.status(statusCode);
     res.json({
       status,
       title,
