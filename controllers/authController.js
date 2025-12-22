@@ -3,6 +3,21 @@ const asyncHandler = require('express-async-handler');
 const { constants } = require('../constants');
 const jwt = require('jsonwebtoken');
 
+const signToken = (id) => {
+  return jwt.sign(
+    // payload
+    {
+      id: id,
+    },
+    // secret
+    process.env.JWT_SECRET,
+    // JWT TTL
+    {
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    },
+  );
+};
+
 const signUp = asyncHandler(async (req, res, next) => {
   console.log(req.body);
   const newUser = await User.create({
@@ -16,18 +31,8 @@ const signUp = asyncHandler(async (req, res, next) => {
     throw new Error('Validation error.');
   }
 
-  const token = jwt.sign(
-    // payload
-    {
-      id: newUser._id,
-    },
-    // secret
-    process.env.JWT_SECRET,
-    // JWT TTL
-    {
-      expiresIn: process.env.JWT_EXPIRES_IN,
-    },
-  );
+  const token = signToken(newUser._id);
+
   res.status(201).json({
     status: 'success',
     token,
@@ -37,6 +42,27 @@ const signUp = asyncHandler(async (req, res, next) => {
   });
 });
 
+const login = asyncHandler(async (req, res, next) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    res.status(constants.VALIDATION_ERROR);
+    throw new Error('Email and password should be non-empty.');
+  }
+
+  const user = await User.findOne({ email }).select('+password');
+  // if no user exists or passwords mismatched
+  if (!user || !(await user.correctPassword(password, user.password))) {
+    res.status(constants.UNAUTHORIZED);
+    throw new Error(`Incorrect email or password.`);
+  }
+
+  const token = signToken(user._id);
+  res.status(200).json({
+    status: 'success',
+    token,
+  });
+});
 module.exports = {
   signUp,
+  login,
 };
