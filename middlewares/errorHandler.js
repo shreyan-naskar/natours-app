@@ -2,51 +2,69 @@ const { constants } = require('../constants');
 
 // custom error handlers
 const errorHandler = (err, req, res, next) => {
-  const statusCode =
+  let statusCode =
     res.statusCode * 1 > 400 && res.statusCode * 1 < 500 ? res.statusCode : 500;
-  let title;
+  let name;
   let status = 'fail';
   let message = err.message;
   const stackTrace = err.stack;
 
   // mongoose errors
+  // CastError
   if (err.name === 'CastError') {
-    title = err.name;
+    name = err.name;
     message = `Invalid ${err.path}: ${err.value}`;
-  } else if (err.code === 11000) {
-    title = 'DuplicateFileds';
+  }
+  // Duplicate Fields
+  else if (err.code === 11000) {
+    name = 'DuplicateFileds';
     const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
     // console.log(value);
     message = `Duplicate field value: ${value}. Please use another value!`;
-  } else if (err.name === 'ValidationError') {
-    title = err.name;
+  }
+  // Validation Error
+  else if (err.name === 'ValidationError') {
+    name = err.name;
     const errors = Object.values(err.errors).map((el) => el.message);
     message = `Invalid input data. ${errors.join('. ')}`;
-  } else {
-    // error thrown from code
+  }
+  // JWT error
+  else if (err.name === 'JsonWebTokenError') {
+    statusCode = constants.UNAUTHORIZED;
+    name = err.name;
+    message = 'Invalid token. Please login again.';
+  }
+  // JWT token expired
+  else if (err.name === 'TokenExpiredError') {
+    statusCode = constants.UNAUTHORIZED;
+    name = err.name;
+    message = 'Token token. Please login again.';
+  }
+  // error thrown from code
+  else {
     switch (statusCode) {
       case constants.VALIDATION_ERROR:
-        title = 'Validation Failed';
+        name = err.name || 'Validation Failed';
         break;
 
       case constants.NOT_FOUND:
-        title = 'Not Found';
+        name = err.name || 'Not Found';
         break;
 
       case constants.UNAUTHORIZED:
-        title = 'Unauthorized';
+        name = err.name || 'Unauthorized';
         break;
 
       case constants.FORBIDDEN:
-        title = 'Forbidden';
+        name = err.name || 'Forbidden';
         break;
 
       case constants.SERVER_ERROR:
-        title = 'Server Error';
+        name = err.name || 'Server Error';
         break;
-      // everything else
+      // random unknown eror
       default:
-        title = 'Unknown Error';
+        name = err.name || 'Unknown Error';
         break;
     }
   }
@@ -54,16 +72,16 @@ const errorHandler = (err, req, res, next) => {
     res.status(statusCode);
     res.json({
       status,
-      title,
+      name,
       message,
       stackTrace,
       // err,
     });
   } else if (process.env.NODE_ENV === 'production') {
     console.log(
-      `Title: ${title}\nMessage: ${message}\nstackTrace: ${stackTrace}`,
+      `Name: ${name}\nMessage: ${message}\nstackTrace: ${stackTrace}`,
     );
-    res.status(500).json({
+    res.status(statusCode).json({
       status,
       message: 'Something went very wrong!',
     });
