@@ -36,6 +36,7 @@ const protect = asyncHandler(async (req, res, next) => {
     throw new Error('User recently changed password. Please login again.');
   }
   // all ok - grant access to protected routes
+  req.user = freshUser;
   next();
 });
 
