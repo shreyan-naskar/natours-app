@@ -5,16 +5,6 @@ const APIFeatures = require('../utils/apiFeatures');
 const asyncHandler = require('express-async-handler');
 const { constants } = require('../constants');
 
-//@desc Get top 5 cheapest tours amongst the highest rated
-//@route GET /api/v1/tours/top-5-cheap
-//@access public
-const aliasTopTours = (req, res, next) => {
-  req.query.limit = '5';
-  req.query.sort = '-ratingsAverage,price';
-  req.query.fields = 'name,price,ratingsAverage,summary,difficult';
-  next();
-};
-
 //@desc Get all tours
 //@route GET /api/v1/tours
 //@access public
@@ -190,7 +180,6 @@ module.exports = {
   createTour,
   updateTour,
   deleteTour,
-  aliasTopTours,
   getTourStats,
   getMonthlyPlan,
 };

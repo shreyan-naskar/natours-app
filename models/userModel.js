@@ -64,4 +64,5 @@ userSchema.methods.changedPasswordAfter = function (JWTTimeStamp) {
   }
   return false; // not changed
 };
+
 module.exports = mongoose.model('User', userSchema);

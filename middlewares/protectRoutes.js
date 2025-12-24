@@ -1,7 +1,8 @@
 const asyncHandler = require('express-async-handler');
-const { constants } = require('../constants');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
+const { constants } = require('../constants');
 const { promisify } = require('util');
 const User = require('../models/userModel');
 
@@ -24,19 +25,19 @@ const protect = asyncHandler(async (req, res, next) => {
 
   // check if user still exists
   // jwt used is valid and not expired but user is deleted in the meantime
-  const freshUser = await User.findById(decoded.id);
-  if (!freshUser) {
+  const currentUser = await User.findById(decoded.id);
+  if (!currentUser) {
     res.status(constants.NOT_FOUND);
     throw new Error('User belonging to this token no longer exists.');
   }
 
   // check if user changed password after token was issued
-  if (freshUser.changedPasswordAfter(decode.iat)) {
+  if (currentUser.changedPasswordAfter(decode.iat)) {
     res.status(constants.UNAUTHORIZED);
     throw new Error('User recently changed password. Please login again.');
   }
   // all ok - grant access to protected routes
-  req.user = freshUser;
+  req.user = currentUser;
   next();
 });
 
