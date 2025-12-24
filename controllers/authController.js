@@ -19,12 +19,13 @@ const signToken = (id) => {
 };
 
 const signUp = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
+    role: req.body.role,
   });
   if (!newUser) {
     res.status(constants.VALIDATION_ERROR);

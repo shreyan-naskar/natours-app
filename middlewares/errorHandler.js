@@ -38,7 +38,7 @@ const errorHandler = (err, req, res, next) => {
   else if (err.name === 'TokenExpiredError') {
     statusCode = constants.UNAUTHORIZED;
     name = err.name;
-    message = 'Token token. Please login again.';
+    message = 'Token expired. Please login again.';
   }
   // error thrown from code
   else {

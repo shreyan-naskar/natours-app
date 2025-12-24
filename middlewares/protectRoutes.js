@@ -32,7 +32,7 @@ const protect = asyncHandler(async (req, res, next) => {
   }
 
   // check if user changed password after token was issued
-  if (currentUser.changedPasswordAfter(decode.iat)) {
+  if (currentUser.changedPasswordAfter(decoded.iat)) {
     res.status(constants.UNAUTHORIZED);
     throw new Error('User recently changed password. Please login again.');
   }
