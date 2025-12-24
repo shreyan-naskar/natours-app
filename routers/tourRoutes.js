@@ -21,11 +21,15 @@ router.route('/tour-stats').get(getTourStats);
 router.route('/monthly-plan/:year').get(getMonthlyPlan);
 
 router.use(protect); // use jwt verification for protected routes
-router.route('/').get(getAllTours).post(createTour);
+// create, update and delete tour routes are authorization based
+router
+  .route('/')
+  .get(getAllTours)
+  .post(restrictUsers('admin', 'lead-guide'), createTour);
 router
   .route('/:id')
   .get(getTour)
-  .patch(updateTour)
+  .patch(restrictUsers('admin', 'lead-guide', 'guide'), updateTour)
   .delete(restrictUsers('admin', 'lead-guide'), deleteTour);
 
 module.exports = router;
