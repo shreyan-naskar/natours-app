@@ -41,4 +41,4 @@ const protect = asyncHandler(async (req, res, next) => {
   next();
 });
 
-module.exports = { protect };
+module.exports = protect;

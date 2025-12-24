@@ -5,4 +5,4 @@ const aliasTopTours = (req, res, next) => {
   next();
 };
 
-module.exports = { aliasTopTours };
+module.exports = aliasTopTours;

@@ -12,4 +12,4 @@ const restrictUsers = (...roles) => {
   };
 };
 
-module.exports = { restrictUsers };
+module.exports = restrictUsers;

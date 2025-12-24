@@ -8,9 +8,9 @@ const {
   getTourStats,
   getMonthlyPlan,
 } = require('../controllers/tourController');
-const { protect } = require('../middlewares/protectRoutes');
-const { aliasTopTours } = require('../middlewares/aliasTopTours');
-const { restrictUsers } = require('../middlewares/restrictUsers');
+const protect = require('../middlewares/protectRoutes');
+const aliasTopTours = require('../middlewares/aliasTopTours');
+const restrictUsers = require('../middlewares/restrictUsers');
 
 const router = express.Router();
 
