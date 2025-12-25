@@ -52,6 +52,14 @@ userSchema.pre('save', async function () {
   this.passwordConfirm = undefined; // do not save after validation
 });
 
+userSchema.pre('save', function () {
+  if (!this.isModified('password') || this.isNew) {
+    return;
+  }
+  // sometimes jwt may get issued before the db save of pasword change, thus jwt would be invalid
+  this.passwordChangedAt = Date.now() - 1000; // hence substract 1 sec
+});
+
 // User Login: compare the passwords
 userSchema.methods.correctPassword = async function (
   candidatePassword,
