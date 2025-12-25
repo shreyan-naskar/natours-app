@@ -5,12 +5,14 @@ const fs = require('fs');
 const tourRouter = require('./routers/tourRoutes');
 const userRouter = require('./routers/userRoutes');
 const errorHandler = require('./middlewares/errorHandler');
+const limiter = require('./middlewares/rateLimiter');
 const app = express();
 
 // GLOBAL MIDDLEWARES
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+app.use('/api', limiter); // rate limiter
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 
