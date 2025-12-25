@@ -1,20 +1,42 @@
 const express = require('express');
 const morgan = require('morgan');
-const fs = require('fs');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 
 const tourRouter = require('./routers/tourRoutes');
 const userRouter = require('./routers/userRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 const limiter = require('./middlewares/rateLimiter');
+const hpp = require('hpp');
+
 const app = express();
 
 // GLOBAL MIDDLEWARES
+// security HTTP headers
+app.use(helmet());
+
+// development logging
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 app.use('/api', limiter); // rate limiter
-app.use(express.json());
-app.use(express.static(`${__dirname}/public`));
+app.use(express.json({ limit: '10kb' })); // body parser
+app.use(mongoSanitize()); // data sanitization against NoSQL query injection
+app.use(xss()); // data sanitization against xss
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'price',
+      'difficulty',
+      'maxGroupSize',
+      'ratingsQuantity',
+      'ratingsAverage',
+    ],
+  }),
+); // prevent http parameter pollution
+app.use(express.static(`${__dirname}/public`)); // serve statics
 
 // ROUTER MIDDLEWARES
 // Tours
