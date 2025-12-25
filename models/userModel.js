@@ -41,6 +41,17 @@ const userSchema = mongoose.Schema({
   passwordChangedAt: Date, // last time password was reset
   passwordResetToken: String, // reset token for comparison
   passwordResetExpired: Date, // reset token expiry time
+  // check user has acc or deleted
+  active: {
+    type: Boolean,
+    default: true,
+    select: false, // do not show in response
+  },
+});
+
+// User getAllUsers: do not use inactive/deleted users
+userSchema.pre(/^find/, function () {
+  this.find({ active: { $ne: false } });
 });
 
 // User SignUp: hash password before storing
@@ -52,6 +63,7 @@ userSchema.pre('save', async function () {
   this.passwordConfirm = undefined; // do not save after validation
 });
 
+// User updatePassword: save change time of password
 userSchema.pre('save', function () {
   if (!this.isModified('password') || this.isNew) {
     return;
