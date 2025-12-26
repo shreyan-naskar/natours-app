@@ -18,11 +18,14 @@ const getAllReviews = asyncHandler(async (req, res, next) => {
 });
 
 const createReview = asyncHandler(async (req, res, next) => {
+  // to allow nested routes
+  if (!req.body.tour) req.body.tour = req.params.tourId;
+  if (!req.body.user) req.body.user = req.user.id; // user loggin in so we get id, set by protect middleware
   const newReview = await Review.create({
     review: req.body.review,
     rating: req.body.rating,
     tour: req.body.tour,
-    user: req.user.id, // user loggin in so we get id, set by protect middleware
+    user: req.body.user,
   });
 
   res.status(201).json({

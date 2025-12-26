@@ -11,8 +11,13 @@ const {
 const protect = require('../middlewares/protectRoutes');
 const aliasTopTours = require('../middlewares/aliasTopTours');
 const restrictUsers = require('../middlewares/restrictUsers');
+const reviewRouter = require('./reviewRoutes');
 
 const router = express.Router();
+
+// nested route
+// /tours/<some-tour-id>/reviews/ => redirect to reviewRoute for this
+router.use('/:tourId/reviews', reviewRouter);
 
 // alias tour
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours);

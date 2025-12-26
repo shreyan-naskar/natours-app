@@ -6,7 +6,8 @@ const {
 const protect = require('../middlewares/protectRoutes');
 const restrictUsers = require('../middlewares/restrictUsers');
 
-const router = express.Router();
+// mergeParams: get params from tourRouter if req redirected from there
+const router = express.Router({ mergeParams: true });
 
 router
   .route('/')
