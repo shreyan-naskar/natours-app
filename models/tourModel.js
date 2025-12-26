@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const User = require('./userModel');
 // const validator = require('validator');
 
 const tourSchema = new mongoose.Schema(
@@ -102,6 +103,8 @@ const tourSchema = new mongoose.Schema(
         day: Number, // day when people will visit this location
       },
     ],
+    // child reference to users with roles - 'guides'
+    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }], // guide_id array
   },
   {
     toJSON: { virtuals: true },
@@ -113,10 +116,10 @@ tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
+// PRE QUERY MIDDLEWARES
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()
 tourSchema.pre('save', function () {
   this.slug = slugify(this.name, { lower: true });
-  // next();
 });
 
 // QUERY MIDDLEWARE
@@ -125,9 +128,25 @@ tourSchema.pre(/^find/, function () {
   this.find({ secretTour: { $ne: true } });
 
   this.start = Date.now();
-  // next();
 });
 
+// save guide objects in the guide array
+// tourSchema.pre('save', async function () {
+//   const guidesPromises = this.guides.map(async (id) => await User.findById(id)); // map func returns promises
+//   this.guides = await Promise.all(guidesPromises); // wait for all promises to be resolved
+// });
+// DO NOT EMBED GUIDES => IF ANY UPDATE IN GUIDE OBJ => CHANGE ALL TOURS THEY ARE INVOLVED IN => BAD
+
+// fill up the guides field using the objectId reference
+// during query execution, not stored in db
+tourSchema.pre(/^find/, function () {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt', // no need to show these, so deselect
+  });
+});
+
+// POST QUERY MIDDLEWARES
 tourSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds!`);
   next();
@@ -136,9 +155,7 @@ tourSchema.post(/^find/, function (docs, next) {
 // AGGREGATION MIDDLEWARE
 tourSchema.pre('aggregate', function () {
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-
-  console.log(this.pipeline());
-  // next();
+  // console.log(this.pipeline());
 });
 
 module.exports = mongoose.model('Tour', tourSchema);
