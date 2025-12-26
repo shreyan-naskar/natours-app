@@ -106,6 +106,7 @@ const tourSchema = new mongoose.Schema(
     // child reference to users with roles - 'guides'
     guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }], // guide_id array
   },
+  // converted to plain JavaScript objects when you send JSON response
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
