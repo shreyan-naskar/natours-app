@@ -29,6 +29,10 @@
 3. Sorting
 4. Pagination
 
+## Database Modelling
+
+![database-modelling](/github-statics/image.png)
+
 ## Run in your local environment
 
 ```
