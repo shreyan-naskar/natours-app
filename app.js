@@ -6,6 +6,7 @@ const xss = require('xss-clean');
 
 const tourRouter = require('./routers/tourRoutes');
 const userRouter = require('./routers/userRoutes');
+const reviewRouter = require('./routers/reviewRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 const limiter = require('./middlewares/rateLimiter');
 const hpp = require('hpp');
@@ -44,6 +45,9 @@ app.use('/api/v1/tours', tourRouter);
 
 // Users
 app.use('/api/v1/users', userRouter);
+
+// Reviews
+app.use('/api/v1/reviews', reviewRouter);
 
 app.all('*', (req, res, next) => {
   res.status(404);

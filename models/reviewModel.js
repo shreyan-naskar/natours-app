@@ -33,4 +33,18 @@ const reviewSchema = mongoose.Schema(
   },
 );
 
+// PRE QUERY MIDDLEWARES
+
+// fill up the guides field using the objectId reference
+// during query execution, not stored in db
+reviewSchema.pre(/^find/, function () {
+  this.populate({
+    path: 'user',
+    select: 'name photo', // send only name & photo, no pvt data
+  });
+  this.populate({
+    path: 'tour',
+    select: 'name', // send only name, no pvt data
+  });
+});
 module.exports = mongoose.model('Review', reviewSchema);
