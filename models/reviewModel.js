@@ -15,6 +15,7 @@ const reviewSchema = mongoose.Schema(
       default: Date.now(),
       select: false,
     },
+    // parent referencing
     tour: {
       type: mongoose.Schema.ObjectId,
       ref: 'Tour',
@@ -42,9 +43,10 @@ reviewSchema.pre(/^find/, function () {
     path: 'user',
     select: 'name photo', // send only name & photo, no pvt data
   });
-  this.populate({
-    path: 'tour',
-    select: 'name', // send only name, no pvt data
-  });
+  // chaining of populates: tour -> review - > tour => not ideal
+  //   this.populate({
+  //     path: 'tour',
+  //     select: 'name', // send only name, no pvt data
+  //   });
 });
 module.exports = mongoose.model('Review', reviewSchema);

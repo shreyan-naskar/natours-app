@@ -43,7 +43,7 @@ const createTour = asyncHandler(async (req, res) => {
 //@route GET /api/v1/tours/:id
 //@access public
 const getTour = asyncHandler(async (req, res) => {
-  const tour = await Tour.findById(req.params.id);
+  const tour = await Tour.findById(req.params.id).populate('reviews'); // virtual populate the reviews
   if (!tour) {
     res.status(constants.NOT_FOUND);
     throw new Error('No tour found with that ID');
