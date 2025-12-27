@@ -112,6 +112,9 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   },
 );
+// add custom indexes
+tourSchema.index({ price: 1, ratingsAverage: -1 }); // 1 for asc; -1 for desc
+tourSchema.index({ slug: 1 });
 
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
