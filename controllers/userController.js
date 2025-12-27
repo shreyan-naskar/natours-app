@@ -4,7 +4,13 @@ const asyncHandler = require('express-async-handler');
 const { constants } = require('../constants');
 const APIFeatures = require('../utils/apiFeatures');
 const User = require('../models/userModel');
-const { deleteOne } = require('../utils/handlerFactory');
+const {
+  deleteOne,
+  updateOne,
+  createOne,
+  getOne,
+  getAll,
+} = require('../utils/handlerFactory');
 
 const filterObj = function (obj, ...allowedFields) {
   const newObj = {};
@@ -17,23 +23,7 @@ const filterObj = function (obj, ...allowedFields) {
   return newObj;
 };
 
-const getAllUsers = asyncHandler(async (req, res) => {
-  const features = new APIFeatures(User.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-
-  const users = await features.query;
-
-  res.status(200).json({
-    status: 'success',
-    results: users.length,
-    data: {
-      users,
-    },
-  });
-});
+const getAllUsers = getAll(User);
 
 const updateMe = asyncHandler(async (req, res, next) => {
   // create error if user tries to updatepassword
@@ -66,26 +56,17 @@ const deleteMe = asyncHandler(async (req, res, next) => {
   });
 });
 
-const getUser = asyncHandler(async (req, res) => {
+const getUser = getOne(User);
+
+const createUser = asyncHandler(async (req, res, next) => {
   res.status(500).json({
-    status: 'error',
-    message: 'route not defined',
+    status: 'fail',
+    message: 'This route is not defined. Please use /signUp.',
   });
 });
 
-const createUser = asyncHandler(async (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'route not defined',
-  });
-});
-
-const updateUser = asyncHandler(async (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'route not defined',
-  });
-});
+// do not update passwords here
+const updateUser = updateOne(User);
 
 const deleteUser = deleteOne(User);
 

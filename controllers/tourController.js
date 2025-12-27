@@ -1,81 +1,35 @@
 const express = require('express');
 
 const Tour = require('../models/tourModel');
-const APIFeatures = require('../utils/apiFeatures');
 const asyncHandler = require('express-async-handler');
 const { constants } = require('../constants');
-const { deleteOne } = require('../utils/handlerFactory');
+const {
+  getOne,
+  deleteOne,
+  updateOne,
+  createOne,
+  getAll,
+} = require('../utils/handlerFactory');
 
 //@desc Get all tours
 //@route GET /api/v1/tours
 //@access public
-const getAllTours = asyncHandler(async (req, res) => {
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-
-  const tours = await features.query;
-
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: {
-      tours,
-    },
-  });
-});
-
-//@desc Create a tour
-//@route POST /api/v1/tours
-//@access public
-const createTour = asyncHandler(async (req, res) => {
-  const newTour = await Tour.create(req.body);
-  res.status(201).json({
-    status: 'success',
-    data: {
-      tour: newTour,
-    },
-  });
-});
+const getAllTours = getAll(Tour);
 
 //@desc Get a tour
 //@route GET /api/v1/tours/:id
 //@access public
-const getTour = asyncHandler(async (req, res) => {
-  const tour = await Tour.findById(req.params.id).populate('reviews'); // virtual populate the reviews
-  if (!tour) {
-    res.status(constants.NOT_FOUND);
-    throw new Error('No tour found with that ID');
-  }
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
-});
+const getTour = getOne(Tour, { path: 'reviews' });
+
+//@desc Create a tour
+//@route POST /api/v1/tours
+//@access public
+const createTour = createOne(Tour);
 
 //@desc Update a tour
 //@route PATCH /api/v1/tours/:id
 //@access public
-const updateTour = asyncHandler(async (req, res) => {
-  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-  if (!tour) {
-    res.status(constants.NOT_FOUND);
-    throw new Error('No tour found with that ID');
-  }
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
-});
+const updateTour = updateOne(Tour);
 
 //@desc Delete a tour
 //@route DELETE /api/v1/tours/:id
