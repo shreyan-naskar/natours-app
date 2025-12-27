@@ -7,6 +7,8 @@ const {
   deleteTour,
   getTourStats,
   getMonthlyPlan,
+  getToursWithin,
+  getDistances,
 } = require('../controllers/tourController');
 const protect = require('../middlewares/protectRoutes');
 const aliasTopTours = require('../middlewares/aliasTopTours');
@@ -27,6 +29,13 @@ router
   .route('/monthly-plan/:year')
   .get(protect, restrictUsers('admin', 'lead-guide', 'guide'), getMonthlyPlan);
 
+// get all tours within a certain distance of given point
+router
+  .route('/tour-within/:distance/center/:latlng/unit/:unit')
+  .get(getToursWithin);
+
+// get all tour ditances from a certain point
+router.route('/distances/:latlng/unit/:unit').get(getDistances);
 // create, update and delete tour routes are authorization based
 router
   .route('/')
