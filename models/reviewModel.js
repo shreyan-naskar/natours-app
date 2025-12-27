@@ -34,6 +34,9 @@ const reviewSchema = mongoose.Schema(
   },
 );
 
+// set indexes
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
+
 // PRE QUERY MIDDLEWARES
 
 // fill up the guides field using the objectId reference
