@@ -23,18 +23,19 @@ router.use('/:tourId/reviews', reviewRouter);
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours);
 
 router.route('/tour-stats').get(getTourStats);
-router.route('/monthly-plan/:year').get(getMonthlyPlan);
+router
+  .route('/monthly-plan/:year')
+  .get(protect, restrictUsers('admin', 'lead-guide', 'guide'), getMonthlyPlan);
 
-router.use(protect); // use jwt verification for protected routes
 // create, update and delete tour routes are authorization based
 router
   .route('/')
   .get(getAllTours)
-  .post(restrictUsers('admin', 'lead-guide'), createTour);
+  .post(protect, restrictUsers('admin', 'lead-guide'), createTour);
 router
   .route('/:id')
   .get(getTour)
-  .patch(restrictUsers('admin', 'lead-guide', 'guide'), updateTour)
-  .delete(restrictUsers('admin', 'lead-guide'), deleteTour);
+  .patch(protect, restrictUsers('admin', 'lead-guide'), updateTour)
+  .delete(protect, restrictUsers('admin', 'lead-guide'), deleteTour);
 
 module.exports = router;

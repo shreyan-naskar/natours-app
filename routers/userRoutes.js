@@ -26,15 +26,20 @@ router.post('/signup', signUp);
 router.post('/login', login);
 router.post('/forgotPassword', forgotPassword);
 router.patch('/resetPassword/:token', resetPassword);
-router.patch('/updateMyPassword', protect, updatePassword); // password update after login
-router.patch('/updateMe', protect, updateMe); // update user data by logged in user
-router.delete('/deleteMe', protect, deleteMe); // update user data by logged in user
 
+// user needs to login
+router.use(protect);
+router.patch('/updateMyPassword', updatePassword); // password update after login
+router.patch('/updateMe', updateMe); // update user data by logged in user
+router.delete('/deleteMe', deleteMe); // update user data by logged in user
+
+// only logged in admin can acesss
+router.use(restrictUsers('admin'));
 router.route('/').get(getAllUsers).post(createUser);
 router
   .route('/:id')
   .get(getUser)
-  .patch(protect, restrictUsers('admin'), updateUser) // only admin can update users(not password) using this route
-  .delete(protect, restrictUsers('admin'), deleteUser); // only admin can delete users using this route
+  .patch(updateUser) // only admin can update users(not password) using this route
+  .delete(deleteUser); // only admin can delete users using this route
 
 module.exports = router;
