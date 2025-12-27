@@ -1,8 +1,10 @@
 const express = require('express');
 const asyncHandler = require('express-async-handler');
+
 const { constants } = require('../constants');
 const APIFeatures = require('../utils/apiFeatures');
 const User = require('../models/userModel');
+const { deleteOne } = require('../utils/handlerFactory');
 
 const filterObj = function (obj, ...allowedFields) {
   const newObj = {};
@@ -85,12 +87,7 @@ const updateUser = asyncHandler(async (req, res) => {
   });
 });
 
-const deleteUser = asyncHandler(async (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'route not defined',
-  });
-});
+const deleteUser = deleteOne(User);
 
 module.exports = {
   getAllUsers,

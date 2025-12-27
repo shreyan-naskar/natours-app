@@ -4,6 +4,7 @@ const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
 const asyncHandler = require('express-async-handler');
 const { constants } = require('../constants');
+const { deleteOne } = require('../utils/handlerFactory');
 
 //@desc Get all tours
 //@route GET /api/v1/tours
@@ -79,16 +80,7 @@ const updateTour = asyncHandler(async (req, res) => {
 //@desc Delete a tour
 //@route DELETE /api/v1/tours/:id
 //@access public
-const deleteTour = asyncHandler(async (req, res) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
-  if (!tour) {
-    res.status(constants.NOT_FOUND);
-    throw new Error('No tour found with that ID');
-  }
-  res.status(204).json({
-    status: 'success',
-  });
-});
+const deleteTour = deleteOne(Tour);
 
 //@desc Get tour stats
 //@route GET /api/v1/tours/tour-stats
