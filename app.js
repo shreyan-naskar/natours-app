@@ -1,17 +1,25 @@
 const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
+const path = require('path');
 
 const tourRouter = require('./routers/tourRoutes');
 const userRouter = require('./routers/userRoutes');
 const reviewRouter = require('./routers/reviewRoutes');
+const viewRouter = require('./routers/viewRouter');
 const errorHandler = require('./middlewares/errorHandler');
 const limiter = require('./middlewares/rateLimiter');
 const hpp = require('hpp');
 
 const app = express();
+
+// server-side rendering: use pug
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views')); // directory from where views will be generated
+app.use(express.static(path.join(__dirname, 'public'))); // serve statics
 
 // GLOBAL MIDDLEWARES
 // security HTTP headers
@@ -21,6 +29,7 @@ app.use(helmet());
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+app.use(cookieParser()); // to read from cookies
 app.use('/api', limiter); // rate limiter
 app.use(express.json({ limit: '10kb' })); // body parser
 app.use(mongoSanitize()); // data sanitization against NoSQL query injection
@@ -37,9 +46,11 @@ app.use(
     ],
   }),
 ); // prevent http parameter pollution
-app.use(express.static(`${__dirname}/public`)); // serve statics
 
 // ROUTER MIDDLEWARES
+// view
+app.use('/', viewRouter);
+
 // Tours
 app.use('/api/v1/tours', tourRouter);
 
