@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const { promisify } = require('util');
 
 const { constants } = require('../constants');
 const User = require('./../models/userModel');
@@ -192,6 +193,7 @@ const updatePassword = asyncHandler(async (req, res, next) => {
 
 const isLoggedIn = async (req, res, next) => {
   if (req.cookies.jwt) {
+    console.log('hello loggedin');
     try {
       // 1) verify token
       const decoded = await promisify(jwt.verify)(

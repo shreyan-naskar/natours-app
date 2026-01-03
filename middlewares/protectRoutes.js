@@ -15,6 +15,12 @@ const protect = asyncHandler(async (req, res, next) => {
   ) {
     token = req.headers.authorization.split(' ')[1];
   }
+  // get cookie from token
+  else if (req.cookies.jwt && req.cookies.jwt !== 'loggedout') {
+    token = req.cookies.jwt;
+  }
+
+  // if no token found
   if (!token) {
     res.status(constants.UNAUTHORIZED);
     throw new Error('You are not logged in.');
@@ -38,6 +44,8 @@ const protect = asyncHandler(async (req, res, next) => {
   }
   // all ok - grant access to protected routes
   req.user = currentUser;
+  // THERE IS A LOGGED IN USER
+  res.locals.user = currentUser;
   next();
 });
 

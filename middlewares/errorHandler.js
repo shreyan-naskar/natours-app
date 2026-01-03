@@ -1,5 +1,39 @@
 const { constants } = require('../constants');
 
+const sendErrorDev = (err, req, res, statusCode, name, message) => {
+  if (req.originalUrl.startsWith('/api')) {
+    res.status(statusCode).json({
+      status: 'fail',
+      name,
+      message,
+      stackTrace: err.stack,
+    });
+  } else {
+    res.status(statusCode).render('error', {
+      title: 'Something went wrong!',
+      msg: err.message,
+    });
+  }
+};
+
+const sendErrorProd = (err, req, res, statusCode) => {
+  if (req.originalUrl.startsWith('/api')) {
+    console.error(
+      `Name: ${err.name}\nMessage: ${err.message}\nStack: ${err.stack}`,
+    );
+
+    res.status(statusCode).json({
+      status: 'fail',
+      message: 'Something went very wrong!',
+    });
+  } else {
+    res.status(statusCode).render('error', {
+      title: 'Something went wrong!',
+      msg: 'Please try again later!',
+    });
+  }
+};
+
 // custom error handlers
 const errorHandler = (err, req, res, next) => {
   let statusCode =
@@ -68,23 +102,11 @@ const errorHandler = (err, req, res, next) => {
         break;
     }
   }
+
   if (process.env.NODE_ENV === 'development') {
-    res.status(statusCode);
-    res.json({
-      status,
-      name,
-      message,
-      stackTrace,
-      // err,
-    });
-  } else if (process.env.NODE_ENV === 'production') {
-    console.log(
-      `Name: ${name}\nMessage: ${message}\nstackTrace: ${stackTrace}`,
-    );
-    res.status(statusCode).json({
-      status,
-      message: 'Something went very wrong!',
-    });
+    sendErrorDev(err, req, res, statusCode, name, message);
+  } else {
+    sendErrorProd(err, req, res, statusCode);
   }
 };
 

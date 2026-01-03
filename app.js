@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const path = require('path');
+const cors = require('cors');
 
 const tourRouter = require('./routers/tourRoutes');
 const userRouter = require('./routers/userRoutes');
@@ -22,9 +23,33 @@ app.set('views', path.join(__dirname, 'views')); // directory from where views w
 app.use(express.static(path.join(__dirname, 'public'))); // serve statics
 
 // GLOBAL MIDDLEWARES
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  }),
+);
 // security HTTP headers
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: false,
+      directives: {
+        defaultSrc: ["'self'", 'http://127.0.0.1:3000', 'ws://localhost:*'],
 
+        scriptSrc: ["'self'", "'unsafe-eval'", "'unsafe-inline'", 'blob:'],
+
+        scriptSrcElem: ["'self'", "'unsafe-eval'", "'unsafe-inline'", 'blob:'],
+
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+
+        connectSrc: ["'self'", 'ws://localhost:*', 'http://127.0.0.1:3000'],
+      },
+    },
+  }),
+);
 // development logging
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -32,6 +57,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use(cookieParser()); // to read from cookies
 app.use('/api', limiter); // rate limiter
 app.use(express.json({ limit: '10kb' })); // body parser
+app.use(express.urlencoded({ extended: true, limit: '10kb' })); // URL-encoded parser (for forms)
 app.use(mongoSanitize()); // data sanitization against NoSQL query injection
 app.use(xss()); // data sanitization against xss
 app.use(
