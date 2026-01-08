@@ -7,6 +7,8 @@ const {
   deleteUser,
   updateMe,
   deleteMe,
+  uploadUserPhoto,
+  resizeUserPhoto,
 } = require('../controllers/userController');
 
 // authentication and authorization
@@ -32,7 +34,8 @@ router.patch('/resetPassword/:token', resetPassword);
 // user needs to login
 router.use(protect);
 router.patch('/updateMyPassword', updatePassword); // password update after login
-router.patch('/updateMe', updateMe); // update user data by logged in user
+// add photo for usr profile; 'photo' field of form where photo is uploaded; single for 1 image
+router.patch('/updateMe', uploadUserPhoto, resizeUserPhoto, updateMe); // update user data by logged in user
 router.delete('/deleteMe', deleteMe); // update user data by logged in user
 
 // only logged in admin can acesss
