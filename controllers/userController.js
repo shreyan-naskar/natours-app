@@ -101,19 +101,19 @@ const updateUser = updateOne(User);
 const deleteUser = deleteOne(User);
 const uploadUserPhoto = upload.single('photo');
 
-const resizeUserPhoto = (req, res, next) => {
+const resizeUserPhoto = asyncHandler(async (req, res, next) => {
   // console.log('Hello');
   if (!req.file) return next();
 
   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`; // changed in shrp to be always jpeg
 
-  sharp(req.file.buffer)
+  await sharp(req.file.buffer)
     .resize(500, 500) // crop to 500x500 has options; read docs
     .toFormat('jpeg') // save as jpeg
     .jpeg({ quality: 90 }) // degrade to 90%
     .toFile(`public/img/users/${req.file.filename}`);
   next();
-};
+});
 module.exports = {
   getAllUsers,
   getUser,

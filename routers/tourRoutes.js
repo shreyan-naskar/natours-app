@@ -9,6 +9,8 @@ const {
   getMonthlyPlan,
   getToursWithin,
   getDistances,
+  uploadTourImages,
+  resizeTourImages,
 } = require('../controllers/tourController');
 const protect = require('../middlewares/protectRoutes');
 const aliasTopTours = require('../middlewares/aliasTopTours');
@@ -44,7 +46,13 @@ router
 router
   .route('/:id')
   .get(getTour)
-  .patch(protect, restrictUsers('admin', 'lead-guide'), updateTour)
+  .patch(
+    protect,
+    restrictUsers('admin', 'lead-guide'),
+    uploadTourImages,
+    resizeTourImages,
+    updateTour,
+  )
   .delete(protect, restrictUsers('admin', 'lead-guide'), deleteTour);
 
 module.exports = router;
