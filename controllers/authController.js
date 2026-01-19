@@ -5,7 +5,7 @@ const { promisify } = require('util');
 
 const { constants } = require('../constants');
 const User = require('./../models/userModel');
-const sendMail = require('../utils/email');
+const mailer = require('../utils/email');
 
 // sign jwt token
 const signToken = (id) => {
@@ -62,6 +62,9 @@ const signUp = asyncHandler(async (req, res, next) => {
     res.status(constants.VALIDATION_ERROR);
     throw new Error('Validation error.');
   }
+
+  const url = `${req.protocol}://${req.get('host')}/me`;
+  await new mailer.Email(newUser, url).sendWelcome();
   // log user in, send jwt
   createAndSendToken(newUser, 201, res);
 });
@@ -107,16 +110,12 @@ const forgotPassword = asyncHandler(async (req, res, next) => {
   // send to users email
   const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
 
-  const msg = `Forgot password? Tap on this link to set new password: ${resetURL}.\n
-  If you did'nt forget your passwprd, please ignore this email!`;
+  // const msg = `Forgot password? Tap on this link to set new password: ${resetURL}.\n
+  // If you did'nt forget your passwprd, please ignore this email!`;
 
   try {
     // send email
-    await sendMail({
-      email: user.email,
-      subject: 'Your password reset token. (valid for 10 mins)',
-      message: msg,
-    });
+    await new mailer.Email(user, resetURL).sendPasswordReset();
 
     res.status(200).json({
       status: 'success',
@@ -193,7 +192,7 @@ const updatePassword = asyncHandler(async (req, res, next) => {
 
 const isLoggedIn = async (req, res, next) => {
   if (req.cookies.jwt) {
-    console.log('hello loggedin');
+    // console.log('hello loggedin');
     try {
       // 1) verify token
       const decoded = await promisify(jwt.verify)(
