@@ -179,6 +179,3 @@ Server-rendered routes include:
 
 ![Database modelling](./github-statics/image.png)
 
-## License
-
-MIT
